@@ -1,0 +1,13 @@
+{
+    "$schema": "../../node_modules/ng-packagr/ng-package.schema.json",
+    "dest": "../../dist/contentful",
+    "lib": {
+      "entryFile": "./public_api.ts"
+    },
+    "assets": [
+      "assets/webApplicationInjector.js",
+      "schematics/**/*.json",
+      "schematics/**/*.js"
+    ]
+  }
+  

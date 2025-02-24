@@ -1,0 +1,42 @@
+{
+    "compileOnSave": false,
+    "compilerOptions": {
+      "baseUrl": "./",
+      "rootDir": ".",
+      "outDir": "./dist/out-tsc",
+      "sourceMap": true,
+      "declaration": false,
+      "moduleResolution": "node",
+      "experimentalDecorators": true,
+      "target": "ES2022",
+      "typeRoots": [
+        "node_modules/@types"
+      ],
+      "lib": [
+        "ES2022",
+        "dom"
+      ],
+      "strictPropertyInitialization": false,
+      "strict": true,
+      "noUnusedLocals": true,
+      "noUnusedParameters": true,
+      "stripInternal": true,
+      "resolveJsonModule": true,
+      "esModuleInterop": true,
+      "useDefineForClassFields": false
+    },
+    "exclude": [
+      "./dist",
+      "./projects/storefrontapp-e2e-cypress"
+    ],
+    "angularCompilerOptions": {
+      "skipTemplateCodegen": true,
+      "strictMetadataEmit": true,
+      "fullTemplateTypeCheck": true,
+      "strictInjectionParameters": true,
+      "enableResourceInlining": true,
+      "strictTemplates": true,
+      "strictInputAccessModifiers": true
+    }
+  }
+  
