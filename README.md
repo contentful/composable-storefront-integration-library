@@ -2,6 +2,8 @@
 
 The Contentful feature can be added to an existing Spartacus / Composable Storefront application by running `ng add @contentful/spartacus-contentful-feature`. 
 
+Check out the [https://github.com/contentful/composable-storefront-integration-library/wiki/Getting-started-%E2%80%90-Demo-setup](Getting Started) wiki page for more information. 
+
 ## License
 
 Copyright (c) 2024 Contentful. All rights reserved.
