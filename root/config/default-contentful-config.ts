@@ -1,14 +1,12 @@
-/*
- * SPDX-FileCopyrightText: 2024 Contentful
- *
- * SPDX-License-Identifier: Apache-2.0
- */
-
 import { ContentfulConfig } from './contentful-config';
 
 export const defaultContentfulConfig: ContentfulConfig = {
   contentful: {
-    storefrontPreviewRoute: 'cx-preview',
-    allowOrigin: 'localhost:9002',
+    spaceId: 'iuusg1rrhk56',
+    accessToken: 'xCu8jKPk0zSWy_cmaxMGzSonnoOqkLfYAwDPzMrrPOw',
+    previewAccessToken: '43DgfAelyI4Gw4bKVVCzPuVlsWV-xSpmK9b0VOUUMuY',
+    environment: 'master',
+    deliveryApiUrl: 'cdn.contentful.com',
+    previewApiUrl: 'preview.contentful.com',
   },
 };
