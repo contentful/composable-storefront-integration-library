@@ -1,0 +1,8 @@
+{
+    "spaceId": "yourSpaceId",
+    "environmentId": "master",
+    "managementToken": "yourCMAToken",
+    "contentFile": "import-data/import-data.json",
+    "host": "api.contentful.com",
+    "errorLogFile": "import-data/error.log"
+  }

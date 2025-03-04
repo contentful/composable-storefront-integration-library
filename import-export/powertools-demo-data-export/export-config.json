@@ -1,0 +1,23 @@
+{
+    "spaceId": "yourSpaceId",
+    "environmentId": "master",
+    "managementToken": "yourCMAToken",
+    "deliveryToken": "yourDeliveryToken",
+    "exportDir": "export-data",
+    "saveFile": true,
+    "contentFile": "export-data.json",
+    "includeDrafts": false,
+    "includeArchived": false,
+    "skipContentModel": false,
+    "skipEditorInterfaces": false,
+    "skipContent": false,
+    "skipRoles": false,
+    "skipWebhooks": false,
+    "contentOnly": false,
+    "downloadAssets": true,
+    "host": "api.contentful.com",
+    "rawProxy": false,
+    "maxAllowedLimit": 1000,
+    "errorLogFile": "export-data/error.log",
+    "useVerboseRenderer": false
+  }
