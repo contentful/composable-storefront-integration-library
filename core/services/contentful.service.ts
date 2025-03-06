@@ -1,190 +1,85 @@
-/*
- * SPDX-FileCopyrightText: 2024 Contentful
- *
- * SPDX-License-Identifier: Apache-2.0
- */
+import { Injectable } from '@angular/core';
 
-import { Injectable, NgZone, Renderer2, RendererFactory2 } from '@angular/core';
-import {
-  BaseSiteService,
-  CmsService,
-  Page,
-  PageType,
-  RoutingService,
-  WindowRef,
-} from '@spartacus/core';
-import { filter, take } from 'rxjs/operators';
+import { LoggerService, WindowRef } from '@spartacus/core';
+
+import { map } from 'rxjs/operators';
+
+import { ContentfulClientApi, Entry, createClient } from 'contentful';
+import { Observable, from, of } from 'rxjs';
+
+import { ContentfulCmsComponentRequest } from '../../cms/adapters/contentful-cms-component.adapter';
+import { ContentfulCmsPageRequest } from '../../cms/adapters/contentful-cms-page.adapter';
 import { ContentfulConfig } from '../../root/config/contentful-config';
+import { defaultContentfulConfig } from '../../root/config/default-contentful-config';
+import { ComponentSkeleton, PageSkeleton } from '../content-types';
 
 @Injectable({
   providedIn: 'root',
 })
-export class ContentfulService {
-  private isPreviewPage = false;
-  private _currentPageId: string | undefined;
-
-  private defaultPreviewProductCode: string | undefined;
-  private defaultPreviewCategoryCode: string | undefined;
+export class ContentService {
+  private readonly client: ContentfulClientApi<undefined>;
 
   constructor(
-    protected cmsService: CmsService,
-    protected routingService: RoutingService,
-    protected baseSiteService: BaseSiteService,
-    protected zone: NgZone,
-    protected winRef: WindowRef,
-    protected rendererFactory: RendererFactory2,
-    protected config: ContentfulConfig
+    protected config: ContentfulConfig,
+    protected windowRef: WindowRef,
+    protected logger: LoggerService,
   ) {
-    if (winRef.nativeWindow) {
-      const window = winRef.nativeWindow as any;
-      // rerender components and slots after editing
-      window.contentful = window.contentful || {};
-      window.contentful.renderComponent = (
-        componentId: string,
-        componentType: string,
-        parentId: string
-      ) => {
-        return this.renderComponent(componentId, componentType, parentId);
-      };
+    let isPreview = false;
 
-      // reprocess page
-      window.contentful.reprocessPage = this.reprocessPage;
+    if (this.windowRef.isBrowser()) {
+      const urlParams = new URLSearchParams(windowRef.nativeWindow?.location.search);
+      isPreview = urlParams.get('preview') === 'true';
     }
+
+    this.client = this.initializeContentfulClient(isPreview);
   }
 
-  public processCmsPage(): void {
-    this.baseSiteService
-      .get()
-      .pipe(
-        filter((site: any) => Boolean(site)),
-        take(1)
-      )
-      .subscribe((site) => {
-        this.defaultPreviewCategoryCode = site.defaultPreviewCategoryCode;
-        this.defaultPreviewProductCode = site.defaultPreviewProductCode;
+  protected initializeContentfulClient(isPreview: boolean): ContentfulClientApi<undefined> {
+    const accessToken = this.config.contentful?.accessToken ?? defaultContentfulConfig.contentful?.accessToken ?? '';
+    const previewAccessToken = this.config.contentful?.previewAccessToken ?? defaultContentfulConfig.contentful?.previewAccessToken ?? '';
+    const previewUrl = this.config.contentful?.previewApiUrl ?? defaultContentfulConfig.contentful?.previewApiUrl ?? '';
+    const deliveryApiUrl = this.config.contentful?.deliveryApiUrl ?? defaultContentfulConfig.contentful?.deliveryApiUrl ?? '';
 
-        this.cmsService
-          .getCurrentPage()
-          .pipe(filter<Page>(Boolean))
-          .subscribe((cmsPage) => {
-            this._currentPageId = cmsPage.pageId;
-            // before adding contract to page, we need redirect to that page
-            this.goToPreviewPage(cmsPage);
-            this.addPageContract(cmsPage);
-          });
-      });
+    return createClient({
+      space: this.config.contentful?.spaceId ?? defaultContentfulConfig.contentful?.spaceId ?? '',
+      environment: this.config.contentful?.environment ?? defaultContentfulConfig.contentful?.environment ?? '',
+      accessToken: isPreview ? previewAccessToken : accessToken,
+      host: isPreview ? previewUrl : deliveryApiUrl,
+    });
   }
 
-  /**
-   * add CSS classes in a body tag
-   */
-  protected addPageContract(cmsPage: Page) {
-    const renderer = this.rendererFactory.createRenderer('body', null);
-    const element = this.winRef.document.body;
-
-    // remove old page contract
-    const previousContract: string[] = [];
-    Array.from(element.classList).forEach((attr) =>
-      previousContract.push(attr)
-    );
-    previousContract.forEach((attr) => renderer.removeClass(element, attr));
-
-    // add new page contract
-    this.addContentfulContract(element, renderer, cmsPage.properties);
-  }
-
-  /**
-   * go to the default preview page
-   */
-  protected goToPreviewPage(cmsPage: Page) {
-    // only the first page is the smartedit preview page
-    if (!this.isPreviewPage) {
-      this.isPreviewPage = true;
-      if (
-        cmsPage.type === PageType.PRODUCT_PAGE &&
-        this.defaultPreviewProductCode
-      ) {
-        this.routingService.go({
-          cxRoute: 'product',
-          params: { code: this.defaultPreviewProductCode, name: '' },
-        });
-      } else if (
-        cmsPage.type === PageType.CATEGORY_PAGE &&
-        this.defaultPreviewCategoryCode
-      ) {
-        this.routingService.go({
-          cxRoute: 'category',
-          params: { code: this.defaultPreviewCategoryCode },
-        });
+  private transformSlug(slug: string): string {
+    const slugMapping = this.config.contentful?.slugMapping ?? {};
+    for (const pattern in slugMapping) {
+      const regex = new RegExp(pattern);
+      if (regex.test(slug)) {
+        return slugMapping[pattern];
       }
     }
+    return slug;
   }
 
-  /**
-   * re-render CMS components and slots
-   */
-  protected renderComponent(
-    componentId: string,
-    componentType?: string,
-    parentId?: string
-  ): boolean {
-    if (componentId) {
-      this.zone.run(() => {
-        // without parentId, it is slot
-        if (!parentId) {
-          if (this._currentPageId) {
-            this.cmsService.refreshPageById(this._currentPageId);
-          } else {
-            this.cmsService.refreshLatestPage();
-          }
-        } else if (componentType) {
-          this.cmsService.refreshComponent(componentId);
+  getPage(req: ContentfulCmsPageRequest, locale?: string): Observable<Entry<PageSkeleton, undefined, string> | null> {
+    if (!req.pageSlug) {
+      this.logger.warn(`WARNING: Page slug is empty. Cannot fetch page.`);
+      return of(null);
+    }
+
+    const slug = this.transformSlug(req.pageSlug);
+
+    return from(this.client.getEntries<PageSkeleton>({ content_type: 'cmsPage', 'fields.slug': slug, include: 10, locale })).pipe(
+      map((pages) => {
+        if (pages.total === 0) {
+          this.logger.warn(`WARNING: No page found for slug "${slug}".`);
+          return null;
         }
-      });
-    }
 
-    return true;
+        return pages.items[0];
+      }),
+    );
   }
 
-  protected reprocessPage() {
-    // TODO: reprocess page API
-  }
-
-  /**
-   * add smartedit HTML markup contract
-   */
-  public addContentfulContract(
-    element: Element,
-    renderer: Renderer2,
-    properties: any
-  ): void {
-    if (properties) {
-      // check each group of properties, e.g. smartedit
-      Object.keys(properties).forEach((group) => {
-        const name = 'data-' + group + '-';
-        const groupProps = properties[group];
-
-        // check each property in the group
-        Object.keys(groupProps).forEach((propName) => {
-          const propValue = groupProps[propName];
-          if (propName === 'classes') {
-            const classes = propValue.split(' ');
-            classes.forEach((classItem: string) => {
-              renderer.addClass(element, classItem);
-            });
-          } else {
-            renderer.setAttribute(
-              element,
-              name +
-                propName
-                  .split(/(?=[A-Z])/)
-                  .join('-')
-                  .toLowerCase(),
-              propValue
-            );
-          }
-        });
-      });
-    }
+  getComponents(req: ContentfulCmsComponentRequest, locale?: string) {
+    return from(this.client.getEntries<ComponentSkeleton>({ 'sys.id[in]': req.componentIds, include: 10, locale }));
   }
 }

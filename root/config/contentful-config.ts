@@ -1,10 +1,5 @@
-/*
- * SPDX-FileCopyrightText: 2024 Contentful
- *
- * SPDX-License-Identifier: Apache-2.0
- */
-
 import { Injectable } from '@angular/core';
+
 import { Config } from '@spartacus/core';
 
 @Injectable({
@@ -13,8 +8,15 @@ import { Config } from '@spartacus/core';
 })
 export abstract class ContentfulConfig {
   contentful?: {
-    storefrontPreviewRoute?: string;
-    allowOrigin?: string;
+    spaceId?: string;
+    accessToken?: string;
+    previewAccessToken?: string;
+    environment?: string;
+    deliveryApiUrl?: string;
+    previewApiUrl?: string;
+    slugMapping?: {
+      [key: string]: string;
+    };
   };
 }
 
