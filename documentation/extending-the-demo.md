@@ -25,76 +25,76 @@ export interface CmsTextImageComponent extends CmsComponent {
 #### Step 2: Create the Component
 
 1. Create the Component File
-📁 `src/app/cms-components/content/text-image/text-image.component.ts`
-	```js
-	import { ChangeDetectionStrategy, Component } from '@angular/core';
-	import { CmsComponentData } from '@spartacus/storefront';
-	import { CmsTextImageComponent } from '../../../model/cms.model';
-	@Component({
-	  selector: 'cx-text-image',
-	  templateUrl: './text-image.component.html',
-	  styleUrls: ['./text-image.component.scss'],
-	  changeDetection: ChangeDetectionStrategy.OnPush,
-	})
-	export class TextImageComponent {
-	  constructor(public component: CmsComponentData<CmsTextImageComponent>) {}
-	}
-	```
+    📁 `src/app/cms-components/content/text-image/text-image.component.ts`
+    ```js
+    import { ChangeDetectionStrategy, Component } from '@angular/core';
+    import { CmsComponentData } from '@spartacus/storefront';
+    import { CmsTextImageComponent } from '../../../model/cms.model';
+    @Component({
+      selector: 'cx-text-image',
+      templateUrl: './text-image.component.html',
+      styleUrls: ['./text-image.component.scss'],
+      changeDetection: ChangeDetectionStrategy.OnPush,
+    })
+    export class TextImageComponent {
+      constructor(public component: CmsComponentData<CmsTextImageComponent>) {}
+    }
+    ```
 
 2. Create the Template File
-📁 `src/app/cms-components/content/text-image/text-image.component.html`
-	```html
-	<div *ngIf="component.data$ | async as data" class="container">
-	  <h2>{{data.text}}</h2>
-	  <img *ngIf="data.image" src="{{data.image.url}}" alt="{{data.image.altText}}" />
-	</div>
-	```
+    📁 `src/app/cms-components/content/text-image/text-image.component.html`
+    ```html
+    <div *ngIf="component.data$ | async as data" class="container">
+      <h2>{{data.text}}</h2>
+      <img *ngIf="data.image" src="{{data.image.url}}" alt="{{data.image.altText}}" />
+    </div>
+    ```
 
 3. Create the Stylesheet
-📁` src/app/cms-components/content/text-image/text-image.component.scss`
-	```css
-	.container {
-	  display: flex;
-	  flex-direction: column;
-	  justify-content: center;
-	  align-items: center;
-	}
-	```
+    📁` src/app/cms-components/content/text-image/text-image.component.scss`
+    ```css
+    .container {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+    ```
 
 4. Create a normalizer for the image
 Since Contentful structures images differently, we need a normalizer to transform the image data into the format used in Angular.
-📁 `src/app/cms-components/content/text-image/text-image-component-normalizer.ts`
-	```js
-	import { Injectable } from '@angular/core';
+    📁 `src/app/cms-components/content/text-image/text-image-component-normalizer.ts`
+    ```js
+    import { Injectable } from '@angular/core';
 	
-	import { CmsComponent } from '@spartacus/core';
-	import { CmsBannerComponentMedia } from '@spartacus/core/src/model/cms.model';
+    import { CmsComponent } from '@spartacus/core';
+    import { CmsBannerComponentMedia } from '@spartacus/core/src/model/cms.model';
 	
-	import { Asset, Entry } from 'contentful';
+    import { Asset, Entry } from 'contentful';
 	
-	import { ComponentSkeleton } from '../../../contentful/core/content-types';
-	import { isAsset } from '../../../contentful/core/type-guards';
-	import { CmsTextImageComponent } from '../../../model/cms.model';
+    import { ComponentSkeleton } from '../../../contentful/core/content-types';
+    import { isAsset } from '../../../contentful/core/type-guards';
+    import { CmsTextImageComponent } from '../../../model/cms.model';
 	
-	@Injectable({ providedIn: 'root' })
-	export class TextImageComponentNormalizer {
-	  convert(source: Entry<ComponentSkeleton, undefined, string>, target: CmsTextImageComponent): CmsComponent {
-	    if (source.sys.contentType.sys.id === 'CmsTextImageComponent' && isAsset(source.fields?.['image'])) {
-	      target.image = this.normalizeMediaAsset(source.fields['image']);
-	    }
-	    return target;
-	  }
+    @Injectable({ providedIn: 'root' })
+    export class TextImageComponentNormalizer {
+      convert(source: Entry<ComponentSkeleton, undefined, string>, target: CmsTextImageComponent): CmsComponent {
+        if (source.sys.contentType.sys.id === 'CmsTextImageComponent' && isAsset(source.fields?.['image'])) {
+          target.image = this.normalizeMediaAsset(source.fields['image']);
+        }
+        return target;
+      }
 	
-	  private normalizeMediaAsset(media: Asset<undefined, string>): CmsBannerComponentMedia | undefined {
-	    return {
-	      altText: '',
-	      code: '',
-	      mime: media.fields.file?.contentType ?? '',
-	      url: media.fields.file?.url ?? '',
-	    };
-	  }
-	}
-	```
+      private normalizeMediaAsset(media: Asset<undefined, string>): CmsBannerComponentMedia | undefined {
+        return {
+          altText: '',
+          code: '',
+          mime: media.fields.file?.contentType ?? '',
+          url: media.fields.file?.url ?? '',
+        };
+      }
+    }
+    ```
 
 #### Step 3: Register the Component and inject the normalizer
 
@@ -153,16 +153,16 @@ Now that we've created the component in **Composable Storefront**, the next step
 
 3. Add two fields:
 	- **Text**
-		- Type: “Text” => “Short text, exact search”
-		- Name: “text”
-		- Field ID “text”
-		![image-20250203-145343.png](./resources/image-20250203-145343.png)
+        - Type: “Text” => “Short text, exact search”
+        - Name: “text”
+        - Field ID “text”
+        - ![image-20250203-145343.png](./resources/image-20250203-145343.png)
 
 	- **Image**
-		- Type: “Media” => “One file”
-		- Name: “image”
-		- Field ID “image”
-		  ![image-20250227-142621.png](./resources/image-20250227-142621.png)
+        - Type: “Media” => “One file”
+        - Name: “image”
+        - Field ID “image”
+        - ![image-20250227-142621.png](./resources/image-20250227-142621.png)
 
 4. Click **Create** to save the new template.
 
