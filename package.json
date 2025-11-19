@@ -20,7 +20,7 @@
     "tslib": "^2.6.2"
   },
   "peerDependencies": {
-    "@angular-devkit/schematics": "^19.2.15",
+    "@angular-devkit/schematics": "^19.2.15 || ^21.0.0",
     "@angular/common": "^19.2.15",
     "@angular/core": "^19.2.15",
     "@spartacus/core": "2211.43.0",
