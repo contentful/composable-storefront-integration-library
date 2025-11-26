@@ -21,8 +21,8 @@
   },
   "peerDependencies": {
     "@angular-devkit/schematics": "^19.2.15",
-    "@angular/common": "^19.2.15",
-    "@angular/core": "^19.2.15",
+    "@angular/common": "^19.2.15 || ^21.0.0",
+    "@angular/core": "^19.2.15 || ^21.0.0",
     "@spartacus/core": "2211.43.0",
     "@spartacus/schematics": "2211.43.0",
     "rxjs": "^7.8.0"
