@@ -1,6 +1,6 @@
 {
   "name": "spartacus-contentful-feature",
-  "version": "221121.2.0",
+  "version": "221121.4.0",
   "description": "Contentful CMS feature library for Spartacus",
   "license": "Apache-2.0",
   "homepage": "https://github.com/contentful/spartacus-contentful-feature",
@@ -23,15 +23,15 @@
     "@angular-devkit/schematics": "^19.2.15",
     "@angular/common": "^19.2.15",
     "@angular/core": "^19.2.15",
-    "@spartacus/core": "~221121.2.0",
-    "@spartacus/schematics": "~221121.2.0",
+    "@spartacus/core": "~221121.4.0",
+    "@spartacus/schematics": "~221121.4.0",
     "rxjs": "^7.8.0"
   },
   "publishConfig": {
     "access": "public"
   },
   "engines": {
-    "node": "^24.0.0"
+    "node": "^25.0.0"
   },
   "schematics": "./schematics/collection.json"
 }
