@@ -1,7 +1,7 @@
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { NgZone, Renderer2, RendererFactory2 } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { InspectorModeDataAttributes } from '@contentful/live-preview/dist/inspectorMode/types';
+import { InspectorModeDataAttributes } from '@contentful/live-preview';
 import { Store, StoreModule } from '@ngrx/store';
 
 import { CmsActions, ContentSlotComponentData, ConverterService, LanguageService, PageContext, RoutingService } from '@spartacus/core';
